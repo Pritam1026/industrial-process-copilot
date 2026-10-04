@@ -1,0 +1,26 @@
+      # Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Testing
+.pytest_cache/
+
+# Type checking
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Environment / secrets
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# PyCharm
+.idea/
