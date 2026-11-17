@@ -1,16 +1,18 @@
-# Name of the workflow
+
 name: CI
 
-# Trigger Event When to run
 on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
 
-# Jobs What task to be performed when triggered
+permissions:
+  contents: read
+
 jobs:
   quality-checks:
     name: Python Quality Checks
@@ -23,7 +25,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -34,11 +36,29 @@ jobs:
       - name: Run tests
         run: uv run pytest
 
-      - name: Run ruff lint
+      - name: Run Ruff lint
         run: uv run ruff check .
 
       - name: Check formatting
-        run: uv run ruff format --check
+        run: uv run ruff format --check .
 
       - name: Run mypy
         run: uv run mypy src
+
+  pr-title-validation:
+    name: PR Title Validation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ ! "$PR_TITLE" =~ ^IPIC-[0-9]+:\ .+ ]]; then
+            echo "Invalid PR title: $PR_TITLE"
+            echo "Expected format: IPIC-123: Short description"
+            exit 1
+          fi
+
+          echo "PR title is valid."
